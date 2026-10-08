@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaChat - Connect & Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #fafafa;
+            color: #262626;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #dbdbdb;
+            border-right: 1px solid #dbdbdb;
+            position: relative;
+        }
+        @media (min-width: 481px) {
+            .container {
+                height: 90vh;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
+            background: #fff;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .username-status h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .username-status p {
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+        .menu-container {
+            position: relative;
+        }
+        .dots-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 35px;
+            background: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+            width: 160px;
+        }
+        .dropdown-menu.active {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #efefef;
+        }
+        .dropdown-item:hover {
+            background: #f0f0f0;
+        }
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .hidden {
+            display: none !important;
+        }
+        h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .points-btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .btn {
+            background: #0095f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .code-display {
+            background: #efefef;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 16px;
+            margin: 10px 0;
+            user-select: all;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #fff;
+        }
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .message.sent {
+            background: #0095f6;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received {
+            background: #efefef;
+            color: #262626;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-input-area {
+            padding: 10px 15px;
+            border-top: 1px solid #dbdbdb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #dbdbdb;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        .send-btn {
+            background: none;
+            border: none;
+            color: #0095f6;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .points-bar {
+            background: #f0f8ff;
+            padding: 8px 15px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dbdbdb;
+            font-weight: 500;
+        }
+        .gift-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .gift-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .gift-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin: 15px 0;
+        }
+        .gift-card h3 {
+            color: #d81b60;
+            margin-bottom: 5px;
+        }
+        .gift-card p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="profile-info">
+            <div class="avatar" id="headerAvatar">FC</div>
+            <div class="username-status">
+                <h3 id="headerTitle">InstaChat</h3>
+                <p id="headerSubtitle">Not Connected</p>
+            </div>
+        </div>
+        <div class="menu-container">
+            <button class="dots-btn" onclick="toggleMenu()">⋮</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" onclick="openJoinScreen()">Paste / Enter Code</div>
+                <div class="dropdown-item" onclick="resetApp()">Reset / Home</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="screenSelect" class="screen">
+        <h2>Target Points Select Karo</h2>
+        <p style="font-size: 13px; color: #8e8e8e; margin-bottom: 20px;">Jitne points par aap gift kholna chahte hain:</p>
+        <div class="points-btn-group">
+            <button class="btn" onclick="startRoom(100)">100 Points</button>
+            <button class="btn" onclick="startRoom(200)">200 Points</button>
+            <button class="btn" onclick="startRoom(300)">300 Points</button>
+        </div>
+    </div>
+
+    <div id="screenShare" class="screen hidden">
+        <h2>Room Code Taiyar Hai!</h2>
+        <p style="font-size: 13px; color: #8e8e8e;">Ye code apne friend ko bhejo aur usse connect karo:</p>
+        <div class="code-display" id="displayCode">------</div>
+        <button class="btn" onclick="copyCode()" style="margin-bottom: 10px;">Copy Code</button>
+        <button class="btn" onclick="enterChatDirectly()" style="background: #3897f0;">Start Chat</button>
+    </div>
+
+    <div id="screenJoin" class="screen hidden">
+        <h2>Friend ka Code Dalein</h2>
+        <p style="font-size: 13px; color: #8e8e8e; margin-bottom: 15px;">Jo code aapke friend ne diya hai use yahan paste karein:</p>
+        <input type="text" id="joinCodeInput" placeholder="Room Code Yahan Dalein..." style="padding: 10px; width: 100%; border: 1px solid #dbdbdb; border-radius: 6px; margin-bottom: 15px; text-align: center; font-size: 15px; outline: none;">
+        <button class="btn" onclick="joinRoom()">Connect Now</button>
+    </div>
+
+    <div id="screenChat" style="display: none; flex: 1; flex-direction: column; height: 100%;">
+        <div class="points-bar">
+            <span id="targetDisplay">Goal: 100 Pts</span>
+            <span id="scoreDisplay">Points: 0 / 100</span>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="messageInput" placeholder="Message bhejo..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">Bhejo</button>
+        </div>
+    </div>
+
+    <div id="giftModal" class="gift-modal hidden">
+        <div class="gift-card">
+            <h3>🎉 Party Bomb Fut Gaya! 🎉</h3>
+            <p>Aapne target points successfully complete kar liye hain!</p>
+            <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=300&auto=format&fit=crop&q=80" alt="Chocolate Gift">
+            <button class="btn" onclick="claimGift()">Gift Now</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentRoom = null;
+    let targetPoints = 100;
+    let currentPoints = 0;
+
+    function toggleMenu() {
+        document.getElementById('dropdownMenu').classList.toggle('active');
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dots-btn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('active')) {
+                    openDropdown.classList.remove('active');
+                }
+            }
+        }
+    }
+
+    function startRoom(points) {
+        targetPoints = points;
+        currentPoints = 0;
+        currentRoom = 'ROOM_' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('displayCode').innerText = currentRoom;
+        document.getElementById('screenSelect').classList.add('hidden');
+        document.getElementById('screenShare').classList.remove('hidden');
+    }
+
+    function copyCode() {
+        const codeText = document.getElementById('displayCode').innerText;
+        navigator.clipboard.writeText(codeText);
+        alert('Room Code Copy Ho Gaya!');
+    }
+
+    function enterChatDirectly() {
+        document.getElementById('screenShare').classList.add('hidden');
+        document.getElementById('screenChat').style.display = 'flex';
+        document.getElementById('headerSubtitle').innerText = 'Connected (Chatting)';
+        document.getElementById('targetDisplay').innerText = 'Goal: ' + targetPoints + ' Pts';
+        updateScoreBoard();
+    }
+
+    function openJoinScreen() {
+        document.getElementById('screenSelect').classList.add('hidden');
+        document.getElementById('screenShare').classList.add('hidden');
+        document.getElementById('screenChat').style.display = 'none';
+        document.getElementById('screenJoin').classList.remove('hidden');
+    }
+
+    function joinRoom() {
+        const code = document.getElementById('joinCodeInput').value.trim();
+        if(code.length < 5) {
+            alert('Sahi Room Code Dalein!');
+            return;
+        }
+        currentRoom = code;
+        document.getElementById('screenJoin').classList.add('hidden');
+        document.getElementById('screenChat').style.display = 'flex';
+        document.getElementById('headerSubtitle').innerText = 'Connected via Code';
+        document.getElementById('targetDisplay').innerText = 'Goal: ' + targetPoints + ' Pts';
+        updateScoreBoard();
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if(!text) return;
+
+        appendMessage(text, 'sent');
+        input.value = '';
+        currentPoints += 5;
+        updateScoreBoard();
+
+        if(currentPoints >= targetPoints) {
+            setTimeout(showGiftModal, 500);
+        } else {
+            setTimeout(() => {
+                let replies = ["Ha bolo!", "Sahi hai!", "Aur batao kya chal raha hai?", "Acha ji!", "Done hai!"];
+                let randomReply = replies[Math.floor(Math.random() * replies.length)];
+                appendMessage(randomReply, 'received');
+                currentPoints += 5;
+                updateScoreBoard();
+                if(currentPoints >= targetPoints) {
+                    setTimeout(showGiftModal, 500);
+                }
+            }, 1000);
+        }
+    }
+
+    function handleKeyPress(e) {
+        if(e.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function appendMessage(text, type) {
+        const chatMessages = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ' + type;
+        msgDiv.innerText = text;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function updateScoreBoard() {
+        document.getElementById('scoreDisplay').innerText = 'Points: ' + currentPoints + ' / ' + targetPoints;
+    }
+
+    function showGiftModal() {
+        document.getElementById('giftModal').classList.remove('hidden');
+    }
+
+    function claimGift() {
+        alert('🎁 Aapka Chocolate Gift Claim Ho Gaya!');
+        resetApp();
+    }
+
+    function resetApp() {
+        currentPoints = 0;
+        currentRoom = null;
+        document.getElementById('giftModal').classList.add('hidden');
+        document.getElementById('screenChat').style.display = 'none';
+        document.getElementById('screenShare').classList.add('hidden');
+        document.getElementById('screenJoin').classList.add('hidden');
+        document.getElementById('screenSelect').classList.remove('hidden');
+        document.getElementById('headerSubtitle').innerText = 'Not Connected';
+        document.getElementById('chatMessages').innerHTML = '';
+    }
+</script>
+
+</body>
+</html>
